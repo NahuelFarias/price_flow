@@ -18,6 +18,8 @@ interface AppLayoutProps {
   activeSection: string
   showSidebar?: boolean
   className?: string
+  showNavbarSimple?: boolean // Para login y páginas públicas
+  noPadding?: boolean // Para landing y páginas que van de borde a borde
 }
 
 // Hook personalizado para manejar el usuario y sus acciones
@@ -53,7 +55,9 @@ export function AppLayout({
   children, 
   activeSection, 
   showSidebar = true,
-  className = ""
+  className = "",
+  showNavbarSimple = false,
+  noPadding = false
 }: AppLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false)
   const { user, handleLogout, handleAccountClick } = useAppUser()
@@ -64,11 +68,12 @@ export function AppLayout({
       <div className={`min-h-screen bg-slate-50 flex flex-col ${className}`}>
         {/* Navbar */}
         <Navbar
-          user={user}
+          user={showNavbarSimple ? undefined : user}
           activeSection={activeSection}
           onLogout={handleLogout}
           onAccountClick={handleAccountClick}
           onMenuClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          isSimple={showNavbarSimple}
         />
 
         <div className="flex flex-1">
@@ -83,7 +88,7 @@ export function AppLayout({
           )}
 
           {/* Main Content */}
-          <main className="flex-1 p-6">
+          <main className={`flex-1 ${noPadding ? '' : 'p-6'}`}>
             {children}
           </main>
         </div>
