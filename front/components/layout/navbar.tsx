@@ -1,4 +1,5 @@
 "use client"
+
 import { Bell, ChevronDown, User, TrendingUp, Menu, Search, Plus } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -24,6 +25,10 @@ interface NavbarProps {
 }
 
 export function Navbar({ user, activeSection, onMenuClick, onLogout, onAccountClick }: NavbarProps) {
+  const handleCrearPromocion = () => {
+    window.location.href = "/promociones/crear"
+  }
+
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -57,7 +62,10 @@ export function Navbar({ user, activeSection, onMenuClick, onLogout, onAccountCl
           {/* Acciones Rápidas y Usuario */}
           <div className="flex items-center space-x-4">
             {/* Botón de Acción Rápida */}
-            <PfButton className="hidden sm:flex items-center space-x-2">
+            <PfButton 
+              onClick={handleCrearPromocion}
+              className="hidden sm:flex items-center space-x-2"
+            >
               <Plus className="h-4 w-4" />
               <span>Crear Promoción</span>
             </PfButton>
