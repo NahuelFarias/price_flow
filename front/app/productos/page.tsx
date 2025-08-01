@@ -3,7 +3,6 @@
 import * as React from "react"
 import { 
   Plus, 
-  Search, 
   Upload,
   Download,
   Edit,
@@ -29,8 +28,10 @@ import {
   AlertCircle
 } from "lucide-react"
 
-import { Navbar } from "@/components/layout/navbar"
-import { Sidebar } from "@/components/layout/sidebar"
+import { AppLayout } from "@/components/layout/app-layout"
+import { PageHeader } from "@/components/ui/page-header"
+import { MetricsGrid } from "@/components/ui/metrics-grid"
+import { FiltersSection } from "@/components/ui/filters-section"
 import { PfButton } from "@/components/ui/pf-button"
 import { PfTable } from "@/components/ui/pf-table"
 import { PfCard } from "@/components/ui/pf-card"
@@ -292,30 +293,10 @@ export default function ProductosPage() {
   const [filterCategoria, setFilterCategoria] = React.useState("todos")
   const [filterEstado, setFilterEstado] = React.useState("todos")
   const [filterMarca, setFilterMarca] = React.useState("todos")
-  const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false)
-  const [activeSection, setActiveSection] = React.useState("productos")
   const [showImportModal, setShowImportModal] = React.useState(false)
   const [showDetailsModal, setShowDetailsModal] = React.useState(false)
   const [selectedProducto, setSelectedProducto] = React.useState<any>(null)
   const { toast, toasts, dismiss } = useToast()
-
-  const mockUser = {
-    name: "María González",
-    email: "maria@distribuidora.com",
-    avatar: undefined,
-  }
-
-  const handleLogout = () => {
-    toast({
-      variant: "info",
-      title: "Cerrando sesión",
-      description: "Hasta pronto, María!",
-    })
-  }
-
-  const handleAccountClick = () => {
-    window.location.href = "/account"
-  }
 
   // Filtrar productos
   const filteredProductos = productosData.filter(producto => {
@@ -407,142 +388,92 @@ export default function ProductosPage() {
   const categorias = [...new Set(productosData.map(p => p.categoria))]
   const marcas = [...new Set(productosData.map(p => p.marca))]
 
+  // Configuración de filtros para FiltersSection
+  const filters = {
+    categoria: categorias.map(cat => ({ value: cat, label: cat })),
+    marca: marcas.map(marca => ({ value: marca, label: marca })),
+    estado: [
+      { value: "activo", label: "Activo" },
+      { value: "bajo_stock", label: "Bajo stock" },
+      { value: "sin_stock", label: "Sin stock" }
+    ]
+  }
+
+  const filterValues = {
+    categoria: filterCategoria,
+    marca: filterMarca,
+    estado: filterEstado
+  }
+
+  const handleFilterChange = (filterName: string, value: string) => {
+    switch (filterName) {
+      case "categoria":
+        setFilterCategoria(value)
+        break
+      case "marca":
+        setFilterMarca(value)
+        break
+      case "estado":
+        setFilterEstado(value)
+        break
+    }
+  }
+
+  const headerActions = (
+    <>
+      <PfButton variant="outline" onClick={handleImportarExcel} className="flex items-center space-x-2">
+        <Upload className="h-4 w-4" />
+        <span>Importar Excel</span>
+      </PfButton>
+      <PfButton variant="outline" onClick={handleExportarExcel} className="flex items-center space-x-2">
+        <Download className="h-4 w-4" />
+        <span>Exportar</span>
+      </PfButton>
+      <PfButton onClick={handleCrearProducto} className="flex items-center space-x-2">
+        <Plus className="h-4 w-4" />
+        <span>Crear Producto</span>
+      </PfButton>
+    </>
+  )
+
   return (
-    <ToastProvider>
-      <div className="min-h-screen bg-slate-50 flex flex-col">
-        {/* Navbar */}
-        <Navbar
-          user={mockUser}
-          activeSection={activeSection}
-          onLogout={handleLogout}
-          onAccountClick={handleAccountClick}
-          onMenuClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+    <AppLayout activeSection="productos">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <PageHeader
+          title="Catálogo de Productos"
+          description="Gestiona tu inventario de productos"
+          actions={headerActions}
         />
 
-        <div className="flex flex-1">
-          {/* Sidebar */}
-          <Sidebar
-            activeSection={activeSection}
-            collapsed={sidebarCollapsed}
-            onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="hidden md:flex"
+        {/* Métricas */}
+        <MetricsGrid metrics={metricasProductos} />
+
+        {/* Filtros y Búsqueda */}
+        <FiltersSection
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Buscar productos por nombre, SKU o marca..."
+          filters={filters}
+          filterValues={filterValues}
+          onFilterChange={handleFilterChange}
+        />
+
+        {/* Tabla de Productos */}
+        <div className="bg-white rounded-lg border border-slate-200">
+          <div className="p-6 border-b border-slate-200">
+            <h2 className="text-xl font-semibold text-slate-800">Productos</h2>
+            <p className="text-slate-600 mt-1">Gestiona todos tus productos y su información</p>
+          </div>
+          
+          <PfTable
+            data={filteredProductos}
+            columns={columns}
+            searchable={false}
+            pagination
+            pageSize={10}
+            onRowClick={(row) => handleVerDetalles(row)}
           />
-
-          {/* Main Content */}
-          <main className="flex-1 p-6">
-            <div className="max-w-7xl mx-auto space-y-8">
-              {/* Header */}
-              <div className="flex justify-between items-center">
-                <div>
-                  <h1 className="text-3xl font-bold text-slate-800">Catálogo de Productos</h1>
-                  <p className="text-slate-600 mt-2">Gestiona tu inventario de productos</p>
-                </div>
-                <div className="flex space-x-3">
-                  <PfButton variant="outline" onClick={handleImportarExcel} className="flex items-center space-x-2">
-                    <Upload className="h-4 w-4" />
-                    <span>Importar Excel</span>
-                  </PfButton>
-                  <PfButton variant="outline" onClick={handleExportarExcel} className="flex items-center space-x-2">
-                    <Download className="h-4 w-4" />
-                    <span>Exportar</span>
-                  </PfButton>
-                  <PfButton onClick={handleCrearProducto} className="flex items-center space-x-2">
-                    <Plus className="h-4 w-4" />
-                    <span>Crear Producto</span>
-                  </PfButton>
-                </div>
-              </div>
-
-              {/* Métricas */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {metricasProductos.map((metrica, index) => {
-                  const Icon = metrica.icono
-                  return (
-                    <PfCard
-                      key={index}
-                      icon={<Icon className={`h-5 w-5 ${metrica.colorIcono}`} />}
-                      title={metrica.titulo}
-                      value={metrica.valor}
-                      description={metrica.descripcion}
-                      color={metrica.color}
-                    />
-                  )
-                })}
-              </div>
-
-              {/* Filtros y Búsqueda */}
-              <div className="bg-white rounded-lg border border-slate-200 p-6">
-                <div className="flex flex-col md:flex-row gap-4">
-                  {/* Búsqueda */}
-                  <div className="flex-1">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <input
-                        type="text"
-                        placeholder="Buscar productos por nombre, SKU o marca..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Filtros */}
-                  <div className="flex gap-4">
-                    <select
-                      value={filterCategoria}
-                      onChange={(e) => setFilterCategoria(e.target.value)}
-                      className="px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="todos">Todas las categorías</option>
-                      {categorias.map(categoria => (
-                        <option key={categoria} value={categoria}>{categoria}</option>
-                      ))}
-                    </select>
-
-                    <select
-                      value={filterMarca}
-                      onChange={(e) => setFilterMarca(e.target.value)}
-                      className="px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="todos">Todas las marcas</option>
-                      {marcas.map(marca => (
-                        <option key={marca} value={marca}>{marca}</option>
-                      ))}
-                    </select>
-
-                    <select
-                      value={filterEstado}
-                      onChange={(e) => setFilterEstado(e.target.value)}
-                      className="px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="todos">Todos los estados</option>
-                      <option value="activo">Activo</option>
-                      <option value="bajo_stock">Bajo stock</option>
-                      <option value="sin_stock">Sin stock</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Tabla de Productos */}
-              <div className="bg-white rounded-lg border border-slate-200">
-                <div className="p-6 border-b border-slate-200">
-                  <h2 className="text-xl font-semibold text-slate-800">Productos</h2>
-                  <p className="text-slate-600 mt-1">Gestiona todos tus productos y su información</p>
-                </div>
-                
-                <PfTable
-                  data={filteredProductos}
-                  columns={columns}
-                  searchable={false}
-                  pagination
-                  pageSize={10}
-                  onRowClick={(row) => handleVerDetalles(row)}
-                />
-              </div>
-            </div>
-          </main>
         </div>
 
         {/* Modal de Importación */}
@@ -833,22 +764,7 @@ export default function ProductosPage() {
             </div>
           </div>
         )}
-
-        {/* Toast Container */}
-        <ToastViewport />
-        {toasts.map((toastData) => (
-          <Toast key={toastData.id} variant={toastData.variant}>
-            <div className="flex items-start space-x-3">
-              {toastData.icon}
-              <div className="flex-1">
-                {toastData.title && <ToastTitle>{toastData.title}</ToastTitle>}
-                {toastData.description && <ToastDescription>{toastData.description}</ToastDescription>}
-              </div>
-            </div>
-            <ToastClose onClick={() => dismiss(toastData.id!)} />
-          </Toast>
-        ))}
       </div>
-    </ToastProvider>
+    </AppLayout>
   )
 } 
