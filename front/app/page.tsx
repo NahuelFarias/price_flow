@@ -8,6 +8,7 @@ import { Sidebar } from "@/components/layout/sidebar"
 import { PfCard } from "@/components/ui/pf-card"
 import { PfButton } from "@/components/ui/pf-button"
 import { PfTable } from "@/components/ui/pf-table"
+import { SalesChart, MarginsChart, PromotionsChart, CategoryDistributionChart } from "@/components/ui/pf-chart"
 import {
   ToastProvider,
   ToastViewport,
@@ -44,6 +45,40 @@ const alertasData = [
   { id: 2, tipo: "margen", mensaje: "Aceite Natura con margen bajo (15%)", prioridad: "media", accion: "Revisar precio" },
   { id: 3, tipo: "promocion", mensaje: "Promoción Coca Cola expira en 2 días", prioridad: "media", accion: "Renovar o finalizar" },
   { id: 4, tipo: "cliente", mensaje: "Cliente Premium solicita descuento especial", prioridad: "alta", accion: "Revisar solicitud" },
+]
+
+// Datos para gráficos
+const salesData = [
+  { name: "Ene", value: 1200000 },
+  { name: "Feb", value: 1350000 },
+  { name: "Mar", value: 1280000 },
+  { name: "Abr", value: 1420000 },
+  { name: "May", value: 1380000 },
+  { name: "Jun", value: 1560000 },
+]
+
+const marginsData = [
+  { name: "Alimentos", value: 18 },
+  { name: "Bebidas", value: 25 },
+  { name: "Limpieza", value: 22 },
+  { name: "Lácteos", value: 16 },
+  { name: "Otros", value: 20 },
+]
+
+const promotionsData = [
+  { name: "Sem 1", value: 85 },
+  { name: "Sem 2", value: 92 },
+  { name: "Sem 3", value: 78 },
+  { name: "Sem 4", value: 88 },
+  { name: "Sem 5", value: 95 },
+  { name: "Sem 6", value: 91 },
+]
+
+const categoryData = [
+  { name: "Alimentos", value: 45 },
+  { name: "Bebidas", value: 25 },
+  { name: "Limpieza", value: 20 },
+  { name: "Lácteos", value: 10 },
 ]
 
 export default function PriceflowDemo() {
@@ -249,6 +284,17 @@ export default function PriceflowDemo() {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* Gráficos de Análisis */}
+              <div>
+                <h2 className="text-xl font-semibold text-slate-800 mb-4">Análisis de Datos</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <SalesChart data={salesData} />
+                  <MarginsChart data={marginsData} />
+                  <PromotionsChart data={promotionsData} />
+                  <CategoryDistributionChart data={categoryData} />
                 </div>
               </div>
             </div>
