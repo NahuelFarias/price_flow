@@ -29,7 +29,7 @@ const sidebarItems = [
     id: "dashboard",
     label: "Dashboard",
     icon: Home,
-    href: "/",
+    href: "/dashboard",
     priority: "primary"
   },
   
