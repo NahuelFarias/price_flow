@@ -1,264 +1,344 @@
 "use client"
 
 import * as React from "react"
-import { User, Mail, Shield, Clock, Edit3, LogOut, Globe, Bell, Key, ArrowLeft } from "lucide-react"
+import { 
+  User, 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Building, 
+  Shield, 
+  Settings,
+  LogOut,
+  Edit,
+  Save,
+  X
+} from "lucide-react"
 
+import { AppLayout } from "@/components/layout/app-layout"
+import { PageHeader } from "@/components/ui/page-header"
 import { PfButton } from "@/components/ui/pf-button"
-import { PfCard } from "@/components/ui/pf-card"
 import { PfInput } from "@/components/ui/pf-input"
+import { PfCard } from "@/components/ui/pf-card"
 import {
-  PfModal,
-  PfModalContent,
-  PfModalDescription,
-  PfModalFooter,
-  PfModalHeader,
-  PfModalTitle,
-  PfModalTrigger,
-} from "@/components/ui/pf-modal"
-import { useToast } from "@/components/ui/pf-toast"
+  ToastProvider,
+  ToastViewport,
+  Toast,
+  ToastTitle,
+  ToastDescription,
+  ToastClose,
+  useToast,
+} from "@/components/ui/pf-toast"
 
-// Simulación de datos del usuario
-const mockUser = {
-  id: "user_123",
-  name: "María González",
-  email: "maria@distribuidora.com",
-  role: "Administrador",
-  lastAccess: "2024-01-15 14:30:00",
-  joinDate: "2023-06-15",
-  preferences: {
-    language: "es",
-    notifications: true,
-    theme: "light",
-  },
-}
-
-export default function UserAccountPage() {
-  const [user, setUser] = React.useState(mockUser)
+export default function AccountPage() {
   const [isEditing, setIsEditing] = React.useState(false)
-  const [editForm, setEditForm] = React.useState({
-    name: user.name,
-    email: user.email,
+  const [userData, setUserData] = React.useState({
+    name: "María González",
+    email: "maria@distribuidora.com",
+    phone: "+54 11 1234-5678",
+    company: "Distribuidora González S.A.",
+    address: "Av. Corrientes 1234, CABA",
+    role: "Administrador",
+    lastLogin: "2024-03-23 14:30"
   })
-  const { toast } = useToast()
+  const [editData, setEditData] = React.useState({ ...userData })
+  const { toast, toasts, dismiss } = useToast()
 
-  const handleSaveProfile = () => {
-    // Aquí iría la lógica para guardar el perfil
-    setUser((prev) => ({
-      ...prev,
-      name: editForm.name,
-      email: editForm.email,
-    }))
+  const handleEdit = () => {
+    setEditData({ ...userData })
+    setIsEditing(true)
+  }
+
+  const handleSave = () => {
+    setUserData({ ...editData })
     setIsEditing(false)
-
     toast({
       variant: "success",
       title: "Perfil actualizado",
-      description: "Los cambios se guardaron correctamente.",
+      description: "Los cambios se han guardado correctamente",
     })
   }
 
+  const handleCancel = () => {
+    setEditData({ ...userData })
+    setIsEditing(false)
+  }
+
   const handleLogout = () => {
-    // Aquí iría la lógica de logout con Auth0
     toast({
       variant: "info",
-      title: "Cerrando sesión...",
-      description: "Te estamos redirigiendo al login.",
+      title: "Cerrando sesión",
+      description: "Hasta pronto, María!",
     })
-
+    
     setTimeout(() => {
       window.location.href = "/login"
     }, 1500)
   }
 
-  const handleChangePassword = () => {
-    // Aquí iría la lógica para cambiar contraseña
-    toast({
-      variant: "info",
-      title: "Cambio de contraseña",
-      description: "Se envió un enlace a tu email para cambiar la contraseña.",
-    })
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("es-AR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  }
+  const headerActions = (
+    <>
+      {isEditing ? (
+        <>
+          <PfButton
+            variant="outline"
+            onClick={handleCancel}
+            className="flex items-center space-x-2"
+          >
+            <X className="h-4 w-4" />
+            <span>Cancelar</span>
+          </PfButton>
+          <PfButton
+            onClick={handleSave}
+            className="flex items-center space-x-2"
+          >
+            <Save className="h-4 w-4" />
+            <span>Guardar</span>
+          </PfButton>
+        </>
+      ) : (
+        <PfButton
+          onClick={handleEdit}
+          className="flex items-center space-x-2"
+        >
+          <Edit className="h-4 w-4" />
+          <span>Editar Perfil</span>
+        </PfButton>
+      )}
+    </>
+  )
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <PfButton variant="ghost" size="icon" onClick={() => window.history.back()}>
-                <ArrowLeft className="h-5 w-5" />
-              </PfButton>
-              <h1 className="text-xl font-semibold text-slate-800">Mi Cuenta</h1>
-            </div>
-          </div>
-        </div>
-      </div>
+    <AppLayout activeSection="account">
+      <div className="max-w-4xl mx-auto space-y-8">
+        {/* Header */}
+        <PageHeader
+          title="Mi Cuenta"
+          description="Gestiona tu perfil y configuración"
+          actions={headerActions}
+        />
 
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Profile Card */}
+          {/* Información del Perfil */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Información Personal */}
             <PfCard>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-slate-800">Información del Perfil</h2>
-                <PfButton
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsEditing(!isEditing)}
-                  icon={<Edit3 className="h-4 w-4" />}
-                >
-                  {isEditing ? "Cancelar" : "Editar"}
-                </PfButton>
+              <div className="flex items-center space-x-2 mb-6">
+                <User className="h-5 w-5 text-blue-600" />
+                <h3 className="text-lg font-semibold text-slate-800">Información Personal</h3>
               </div>
-
-              <div className="space-y-6">
-                {/* Avatar */}
-                <div className="flex items-center space-x-4">
-                  <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center">
-                    <User className="w-8 h-8 text-slate-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-slate-800">{user.name}</h3>
-                    <p className="text-slate-500">{user.email}</p>
-                  </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Nombre Completo
+                  </label>
+                  {isEditing ? (
+                    <PfInput
+                      value={editData.name}
+                      onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                    />
+                  ) : (
+                    <p className="text-slate-900">{userData.name}</p>
+                  )}
                 </div>
 
-                {/* Form Fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <PfInput
-                    label="Nombre completo"
-                    value={isEditing ? editForm.name : user.name}
-                    onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
-                    disabled={!isEditing}
-                    icon={<User className="h-4 w-4" />}
-                  />
-                  <PfInput
-                    label="Correo electrónico"
-                    type="email"
-                    value={isEditing ? editForm.email : user.email}
-                    onChange={(e) => setEditForm((prev) => ({ ...prev, email: e.target.value }))}
-                    disabled={!isEditing}
-                    icon={<Mail className="h-4 w-4" />}
-                  />
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Email
+                  </label>
+                  {isEditing ? (
+                    <PfInput
+                      type="email"
+                      value={editData.email}
+                      onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                    />
+                  ) : (
+                    <p className="text-slate-900">{userData.email}</p>
+                  )}
                 </div>
 
-                {isEditing && (
-                  <div className="flex space-x-3">
-                    <PfButton onClick={handleSaveProfile}>Guardar cambios</PfButton>
-                    <PfButton variant="outline" onClick={() => setIsEditing(false)}>
-                      Cancelar
-                    </PfButton>
-                  </div>
-                )}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Teléfono
+                  </label>
+                  {isEditing ? (
+                    <PfInput
+                      value={editData.phone}
+                      onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
+                    />
+                  ) : (
+                    <p className="text-slate-900">{userData.phone}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Empresa
+                  </label>
+                  {isEditing ? (
+                    <PfInput
+                      value={editData.company}
+                      onChange={(e) => setEditData({ ...editData, company: e.target.value })}
+                    />
+                  ) : (
+                    <p className="text-slate-900">{userData.company}</p>
+                  )}
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Dirección
+                  </label>
+                  {isEditing ? (
+                    <PfInput
+                      value={editData.address}
+                      onChange={(e) => setEditData({ ...editData, address: e.target.value })}
+                    />
+                  ) : (
+                    <p className="text-slate-900">{userData.address}</p>
+                  )}
+                </div>
               </div>
             </PfCard>
 
-            {/* Account Details */}
+            {/* Información de la Cuenta */}
             <PfCard>
-              <h2 className="text-lg font-semibold text-slate-800 mb-6">Detalles de la Cuenta</h2>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between py-3 border-b border-slate-100">
-                  <div className="flex items-center space-x-3">
-                    <Shield className="h-5 w-5 text-slate-400" />
-                    <div>
-                      <p className="text-sm font-medium text-slate-800">Rol</p>
-                      <p className="text-sm text-slate-500">{user.role}</p>
-                    </div>
-                  </div>
+              <div className="flex items-center space-x-2 mb-6">
+                <Shield className="h-5 w-5 text-green-600" />
+                <h3 className="text-lg font-semibold text-slate-800">Información de la Cuenta</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Rol
+                  </label>
+                  <p className="text-slate-900">{userData.role}</p>
                 </div>
 
-                <div className="flex items-center justify-between py-3 border-b border-slate-100">
-                  <div className="flex items-center space-x-3">
-                    <Clock className="h-5 w-5 text-slate-400" />
-                    <div>
-                      <p className="text-sm font-medium text-slate-800">Último acceso</p>
-                      <p className="text-sm text-slate-500">{formatDate(user.lastAccess)}</p>
-                    </div>
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Último Acceso
+                  </label>
+                  <p className="text-slate-900">{userData.lastLogin}</p>
                 </div>
 
-                <div className="flex items-center justify-between py-3">
-                  <div className="flex items-center space-x-3">
-                    <User className="h-5 w-5 text-slate-400" />
-                    <div>
-                      <p className="text-sm font-medium text-slate-800">Miembro desde</p>
-                      <p className="text-sm text-slate-500">{formatDate(user.joinDate)}</p>
-                    </div>
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Estado de la Cuenta
+                  </label>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    Activa
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Plan
+                  </label>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    Premium
+                  </span>
                 </div>
               </div>
             </PfCard>
           </div>
 
-          {/* Actions Sidebar */}
+          {/* Sidebar */}
           <div className="space-y-6">
-            {/* Quick Actions */}
+            {/* Avatar y Acciones Rápidas */}
             <PfCard>
-              <h3 className="text-lg font-semibold text-slate-800 mb-4">Acciones Rápidas</h3>
+              <div className="text-center">
+                <div className="mx-auto h-20 w-20 bg-blue-600 rounded-full flex items-center justify-center mb-4">
+                  <span className="text-white font-bold text-2xl">
+                    {userData.name.split(" ").map(n => n[0]).join("")}
+                  </span>
+                </div>
+                <h3 className="text-lg font-semibold text-slate-800 mb-2">{userData.name}</h3>
+                <p className="text-slate-600 text-sm mb-4">{userData.role}</p>
+                
+                <div className="space-y-2">
+                  <PfButton
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      toast({
+                        variant: "info",
+                        title: "Cambiar contraseña",
+                        description: "Funcionalidad en desarrollo",
+                      })
+                    }}
+                  >
+                    Cambiar Contraseña
+                  </PfButton>
+                  
+                  <PfButton
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      toast({
+                        variant: "info",
+                        title: "Configuración",
+                        description: "Funcionalidad en desarrollo",
+                      })
+                    }}
+                  >
+                    Configuración
+                  </PfButton>
+                </div>
+              </div>
+            </PfCard>
 
+            {/* Acciones de Cuenta */}
+            <PfCard>
+              <div className="flex items-center space-x-2 mb-4">
+                <Settings className="h-5 w-5 text-orange-600" />
+                <h3 className="text-lg font-semibold text-slate-800">Acciones</h3>
+              </div>
+              
               <div className="space-y-3">
                 <PfButton
                   variant="outline"
                   className="w-full justify-start"
-                  onClick={handleChangePassword}
-                  icon={<Key className="h-4 w-4" />}
+                  onClick={() => {
+                    toast({
+                      variant: "info",
+                      title: "Exportar datos",
+                      description: "Funcionalidad en desarrollo",
+                    })
+                  }}
                 >
-                  Cambiar contraseña
+                  Exportar Datos
                 </PfButton>
-
-                <PfButton variant="outline" className="w-full justify-start" icon={<Bell className="h-4 w-4" />}>
-                  Notificaciones
+                
+                <PfButton
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    toast({
+                      variant: "info",
+                      title: "Soporte",
+                      description: "Funcionalidad en desarrollo",
+                    })
+                  }}
+                >
+                  Contactar Soporte
                 </PfButton>
-
-                <PfButton variant="outline" className="w-full justify-start" icon={<Globe className="h-4 w-4" />}>
-                  Idioma y región
+                
+                <PfButton
+                  variant="destructive"
+                  className="w-full justify-start"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Cerrar Sesión
                 </PfButton>
               </div>
-            </PfCard>
-
-            {/* Logout */}
-            <PfCard variant="danger">
-              <h3 className="text-lg font-semibold text-red-800 mb-4">Zona de Peligro</h3>
-
-              <PfModal>
-                <PfModalTrigger asChild>
-                  <PfButton variant="danger" className="w-full" icon={<LogOut className="h-4 w-4" />}>
-                    Cerrar sesión
-                  </PfButton>
-                </PfModalTrigger>
-                <PfModalContent>
-                  <PfModalHeader>
-                    <PfModalTitle>¿Cerrar sesión?</PfModalTitle>
-                    <PfModalDescription>
-                      Estás a punto de cerrar tu sesión en Priceflow. Tendrás que volver a iniciar sesión para acceder a
-                      tu cuenta.
-                    </PfModalDescription>
-                  </PfModalHeader>
-                  <PfModalFooter>
-                    <PfButton variant="outline">Cancelar</PfButton>
-                    <PfButton variant="danger" onClick={handleLogout}>
-                      Cerrar sesión
-                    </PfButton>
-                  </PfModalFooter>
-                </PfModalContent>
-              </PfModal>
             </PfCard>
           </div>
         </div>
       </div>
-    </div>
+    </AppLayout>
   )
 }

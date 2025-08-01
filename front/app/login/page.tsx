@@ -1,120 +1,207 @@
 "use client"
 
 import * as React from "react"
-import { TrendingUp, ArrowRight, Mail, HelpCircle } from "lucide-react"
+import { Eye, EyeOff, Lock, Mail } from "lucide-react"
 
+import { AppLayout } from "@/components/layout/app-layout"
 import { PfButton } from "@/components/ui/pf-button"
+import { PfInput } from "@/components/ui/pf-input"
 import { PfCard } from "@/components/ui/pf-card"
+import {
+  ToastProvider,
+  ToastViewport,
+  Toast,
+  ToastTitle,
+  ToastDescription,
+  ToastClose,
+  useToast,
+} from "@/components/ui/pf-toast"
 
 export default function LoginPage() {
+  const [email, setEmail] = React.useState("")
+  const [password, setPassword] = React.useState("")
+  const [showPassword, setShowPassword] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
+  const { toast, toasts, dismiss } = useToast()
 
-  const handleAuth0Login = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!email || !password) {
+      toast({
+        variant: "error",
+        title: "Campos requeridos",
+        description: "Por favor completa todos los campos",
+      })
+      return
+    }
+
     setIsLoading(true)
 
-    // Simular integración con Auth0
-    try {
-      // Aquí iría la integración real con Auth0
-      // window.location.href = '/api/auth/login'
-
-      // Simulación de delay
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      // Redirigir al dashboard después del login exitoso
-      window.location.href = "/dashboard"
-    } catch (error) {
-      console.error("Error en login:", error)
-    } finally {
+    // Simular login
+    setTimeout(() => {
+      if (email === "admin@priceflow.com" && password === "admin123") {
+        toast({
+          variant: "success",
+          title: "¡Bienvenido!",
+          description: "Has iniciado sesión correctamente",
+        })
+        
+        setTimeout(() => {
+          window.location.href = "/"
+        }, 1000)
+      } else {
+        toast({
+          variant: "error",
+          title: "Credenciales incorrectas",
+          description: "Verifica tu email y contraseña",
+        })
+      }
       setIsLoading(false)
-    }
-  }
-
-  const handleContactSupport = () => {
-    // Aquí iría la lógica para contactar soporte
-    window.open("mailto:soporte@priceflow.com?subject=Consulta sobre cuenta", "_blank")
+    }, 1000)
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
-
-      <div className="relative w-full max-w-md">
-        {/* Logo and Brand */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-800 rounded-2xl mb-4">
-            <TrendingUp className="w-8 h-8 text-white" />
+    <AppLayout activeSection="" showSidebar={false}>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          {/* Logo y Título */}
+          <div className="text-center">
+            <div className="mx-auto h-12 w-12 bg-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-xl">P</span>
+            </div>
+            <h2 className="mt-6 text-3xl font-bold text-slate-900">
+              Bienvenido a Priceflow
+            </h2>
+            <p className="mt-2 text-sm text-slate-600">
+              Inicia sesión en tu cuenta
+            </p>
           </div>
-          <h1 className="text-2xl font-bold text-slate-800 mb-2">Priceflow</h1>
-          <p className="text-slate-600">Plataforma de gestión de precios para mayoristas</p>
-        </div>
 
-        {/* Login Card */}
-        <PfCard className="p-8">
-          <div className="space-y-6">
-            <div className="text-center">
-              <h2 className="text-xl font-semibold text-slate-800 mb-2">Ingresá a tu cuenta</h2>
-              <p className="text-slate-600 text-sm">Accedé a tu dashboard y optimizá tu rentabilidad</p>
-            </div>
-
-            {/* Auth0 Login Button */}
-            <PfButton
-              className="w-full"
-              size="lg"
-              loading={isLoading}
-              onClick={handleAuth0Login}
-              icon={!isLoading && <ArrowRight className="h-5 w-5" />}
-            >
-              {isLoading ? "Iniciando sesión..." : "Continuar con Auth0"}
-            </PfButton>
-
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-slate-200" />
+          {/* Formulario */}
+          <PfCard>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
+                  Email
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <PfInput
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="tu@email.com"
+                    className="pl-10"
+                    required
+                  />
+                </div>
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-slate-500">o</span>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-2">
+                  Contraseña
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <PfInput
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="pl-10 pr-10"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <input
+                    id="remember-me"
+                    name="remember-me"
+                    type="checkbox"
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded"
+                  />
+                  <label htmlFor="remember-me" className="ml-2 block text-sm text-slate-700">
+                    Recordarme
+                  </label>
+                </div>
+
+                <div className="text-sm">
+                  <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
+                    ¿Olvidaste tu contraseña?
+                  </a>
+                </div>
+              </div>
+
+              <div>
+                <PfButton
+                  type="submit"
+                  className="w-full flex justify-center"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Iniciando sesión...
+                    </>
+                  ) : (
+                    "Iniciar Sesión"
+                  )}
+                </PfButton>
+              </div>
+            </form>
+
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-slate-300" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-slate-500">¿No tienes cuenta?</span>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <PfButton
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    toast({
+                      variant: "info",
+                      title: "Registro",
+                      description: "Funcionalidad de registro en desarrollo",
+                    })
+                  }}
+                >
+                  Crear cuenta
+                </PfButton>
               </div>
             </div>
+          </PfCard>
 
-            {/* Alternative Options */}
-            <div className="space-y-3">
-              <PfButton
-                variant="outline"
-                className="w-full"
-                onClick={handleContactSupport}
-                icon={<Mail className="h-4 w-4" />}
-              >
-                Contactar por email
-              </PfButton>
-
-              <PfButton
-                variant="ghost"
-                className="w-full text-slate-600"
-                onClick={handleContactSupport}
-                icon={<HelpCircle className="h-4 w-4" />}
-              >
-                ¿No tenés cuenta? Consultanos
-              </PfButton>
-            </div>
+          {/* Información de Demo */}
+          <div className="text-center">
+            <p className="text-xs text-slate-500">
+              <strong>Demo:</strong> admin@priceflow.com / admin123
+            </p>
           </div>
-        </PfCard>
-
-        {/* Footer */}
-        <div className="text-center mt-8 text-sm text-slate-500">
-          <p>
-            Al iniciar sesión, aceptás nuestros{" "}
-            <a href="#" className="text-slate-700 hover:underline">
-              Términos de Servicio
-            </a>{" "}
-            y{" "}
-            <a href="#" className="text-slate-700 hover:underline">
-              Política de Privacidad
-            </a>
-          </p>
         </div>
       </div>
-    </div>
+    </AppLayout>
   )
 }
