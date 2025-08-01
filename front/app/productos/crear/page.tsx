@@ -2,18 +2,19 @@
 
 import * as React from "react"
 import { 
-  ArrowLeft,
-  Save,
+  ArrowLeft, 
+  Save, 
   X,
   Package,
   DollarSign,
   TrendingUp,
-  AlertTriangle,
-  CheckCircle,
+  Tag,
+  Truck,
   Info
 } from "lucide-react"
 
-import { Navbar } from "@/components/layout/navbar"
+import { AppLayout } from "@/components/layout/app-layout"
+import { PageHeader } from "@/components/ui/page-header"
 import { PfButton } from "@/components/ui/pf-button"
 import { PfInput } from "@/components/ui/pf-input"
 import { PfCard } from "@/components/ui/pf-card"
@@ -26,56 +27,6 @@ import {
   ToastClose,
   useToast,
 } from "@/components/ui/pf-toast"
-
-// Datos de ejemplo para selectores
-const categorias = [
-  "Bebidas",
-  "Alimentos",
-  "Limpieza",
-  "Lácteos",
-  "Higiene Personal",
-  "Snacks",
-  "Congelados",
-  "Bebidas Alcohólicas"
-]
-
-const marcas = [
-  "Coca Cola",
-  "Pepsi",
-  "Bimbo",
-  "La Serenísima",
-  "Danone",
-  "Unilever",
-  "Natura",
-  "Molinos Río de la Plata",
-  "Quilmes",
-  "Personal"
-]
-
-const proveedores = [
-  "Coca Cola Argentina",
-  "PepsiCo Argentina",
-  "Bimbo Argentina",
-  "La Serenísima",
-  "Danone Argentina",
-  "Unilever Argentina",
-  "Natura Argentina",
-  "Molinos Río de la Plata",
-  "Cervecería y Maltería Quilmes",
-  "Personal Care"
-]
-
-const unidades = [
-  "Unidad",
-  "Kg",
-  "Litro",
-  "Gramo",
-  "Mililitro",
-  "Caja",
-  "Pack",
-  "Botella",
-  "Lata"
-]
 
 export default function CrearProductoPage() {
   const [formData, setFormData] = React.useState({
@@ -90,128 +41,113 @@ export default function CrearProductoPage() {
     margen: "",
     stock: "",
     stockMinimo: "",
-    unidad: "",
+    codigoBarras: "",
     peso: "",
     dimensiones: "",
-    codigoBarras: "",
+    unidad: "",
     activo: true
   })
-
-  const [errors, setErrors] = React.useState<Record<string, string>>({})
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
   const { toast, toasts, dismiss } = useToast()
 
-  const mockUser = {
-    name: "María González",
-    email: "maria@distribuidora.com",
-    avatar: undefined,
-  }
+  const categorias = [
+    "Alimentos",
+    "Bebidas", 
+    "Limpieza",
+    "Lácteos",
+    "Higiene",
+    "Otros"
+  ]
 
-  const handleLogout = () => {
-    toast({
-      variant: "info",
-      title: "Cerrando sesión",
-      description: "Hasta pronto, María!",
-    })
-  }
+  const marcas = [
+    "Coca Cola",
+    "Bimbo",
+    "Unilever",
+    "Natura",
+    "La Serenísima",
+    "Danone",
+    "Gallo",
+    "Otra"
+  ]
 
-  const handleAccountClick = () => {
-    window.location.href = "/account"
-  }
+  const proveedores = [
+    "Coca Cola Argentina",
+    "Bimbo Argentina",
+    "Unilever Argentina",
+    "Natura Argentina",
+    "La Serenísima",
+    "Danone Argentina",
+    "Molinos Río de la Plata",
+    "Otro"
+  ]
+
+  const unidades = [
+    "Botella",
+    "Pack",
+    "Kg",
+    "Litro",
+    "Tetra",
+    "Unidad",
+    "Caja"
+  ]
 
   const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-    
-    // Limpiar error del campo cuando el usuario empieza a escribir
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }))
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
+
+    // Calcular margen automáticamente si se modifican precio o precioCosto
+    if ((field === "precio" || field === "precioCosto") && 
+        formData.precio && formData.precioCosto && 
+        !isNaN(Number(formData.precio)) && !isNaN(Number(formData.precioCosto))) {
+      const precio = Number(formData.precio)
+      const precioCosto = Number(formData.precioCosto)
+      if (precio > 0 && precioCosto > 0) {
+        const margenCalculado = ((precio - precioCosto) / precio * 100).toFixed(1)
+        setFormData(prev => ({
+          ...prev,
+          margen: margenCalculado
+        }))
+      }
     }
   }
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {}
-
-    if (!formData.nombre.trim()) {
-      newErrors.nombre = "El nombre del producto es requerido"
-    }
-
-    if (!formData.sku.trim()) {
-      newErrors.sku = "El SKU es requerido"
-    } else if (formData.sku.length < 3) {
-      newErrors.sku = "El SKU debe tener al menos 3 caracteres"
-    }
-
-    if (!formData.categoria) {
-      newErrors.categoria = "Selecciona una categoría"
-    }
-
-    if (!formData.marca) {
-      newErrors.marca = "Selecciona una marca"
-    }
-
-    if (!formData.proveedor) {
-      newErrors.proveedor = "Selecciona un proveedor"
-    }
-
-    if (!formData.precio) {
-      newErrors.precio = "El precio es requerido"
-    } else if (isNaN(Number(formData.precio)) || Number(formData.precio) <= 0) {
-      newErrors.precio = "El precio debe ser un número válido mayor a 0"
-    }
-
-    if (!formData.precioCosto) {
-      newErrors.precioCosto = "El precio de costo es requerido"
-    } else if (isNaN(Number(formData.precioCosto)) || Number(formData.precioCosto) <= 0) {
-      newErrors.precioCosto = "El precio de costo debe ser un número válido mayor a 0"
-    }
-
-    if (!formData.stock) {
-      newErrors.stock = "El stock inicial es requerido"
-    } else if (isNaN(Number(formData.stock)) || Number(formData.stock) < 0) {
-      newErrors.stock = "El stock debe ser un número válido mayor o igual a 0"
-    }
-
-    if (!formData.stockMinimo) {
-      newErrors.stockMinimo = "El stock mínimo es requerido"
-    } else if (isNaN(Number(formData.stockMinimo)) || Number(formData.stockMinimo) < 0) {
-      newErrors.stockMinimo = "El stock mínimo debe ser un número válido mayor o igual a 0"
-    }
-
-    if (!formData.unidad) {
-      newErrors.unidad = "Selecciona una unidad"
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    const errors: string[] = []
+    
+    if (!formData.nombre.trim()) errors.push("El nombre del producto es requerido")
+    if (!formData.sku.trim()) errors.push("El SKU es requerido")
+    if (!formData.categoria) errors.push("La categoría es requerida")
+    if (!formData.marca) errors.push("La marca es requerida")
+    if (!formData.precio || Number(formData.precio) <= 0) errors.push("El precio debe ser mayor a 0")
+    if (!formData.precioCosto || Number(formData.precioCosto) <= 0) errors.push("El precio de costo debe ser mayor a 0")
+    if (!formData.stock || Number(formData.stock) < 0) errors.push("El stock no puede ser negativo")
+    if (!formData.stockMinimo || Number(formData.stockMinimo) < 0) errors.push("El stock mínimo no puede ser negativo")
+    
+    return errors
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = () => {
+    const errors = validateForm()
     
-    if (!validateForm()) {
+    if (errors.length > 0) {
       toast({
         variant: "error",
-        title: "Error de validación",
-        description: "Por favor, corrige los errores en el formulario",
+        title: "Errores en el formulario",
+        description: errors.join(", "),
       })
       return
     }
 
-    setIsSubmitting(true)
-
-    // Simular envío al servidor
+    toast({
+      variant: "success",
+      title: "Producto creado exitosamente",
+      description: `"${formData.nombre}" ha sido agregado al catálogo`,
+    })
+    
     setTimeout(() => {
-      toast({
-        variant: "success",
-        title: "Producto creado exitosamente",
-        description: `"${formData.nombre}" ha sido agregado al catálogo`,
-      })
-      
-      // Redirigir a la lista de productos
-      setTimeout(() => {
-        window.location.href = "/productos"
-      }, 1500)
-    }, 1000)
+      window.location.href = "/productos"
+    }, 1500)
   }
 
   const handleCancel = () => {
@@ -224,395 +160,316 @@ export default function CrearProductoPage() {
     }
   }
 
-  // Calcular margen automáticamente
-  React.useEffect(() => {
-    if (formData.precio && formData.precioCosto) {
-      const precio = Number(formData.precio)
-      const costo = Number(formData.precioCosto)
-      if (precio > 0 && costo > 0) {
-        const margen = ((precio - costo) / precio) * 100
-        setFormData(prev => ({ ...prev, margen: margen.toFixed(2) }))
-      }
-    }
-  }, [formData.precio, formData.precioCosto])
+  const headerActions = (
+    <PfButton
+      variant="outline"
+      onClick={handleCancel}
+      className="flex items-center space-x-2"
+    >
+      <ArrowLeft className="h-4 w-4" />
+      <span>Volver</span>
+    </PfButton>
+  )
 
   return (
-    <ToastProvider>
-      <div className="min-h-screen bg-slate-50 flex flex-col">
-        {/* Navbar */}
-        <Navbar
-          user={mockUser}
-          activeSection="productos"
-          onLogout={handleLogout}
-          onAccountClick={handleAccountClick}
+    <AppLayout activeSection="productos" showSidebar={false}>
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <PageHeader
+          title="Crear Nuevo Producto"
+          description="Agrega un nuevo producto al catálogo"
+          actions={headerActions}
         />
 
-        {/* Main Content */}
-        <main className="flex-1 p-6">
-          <div className="max-w-4xl mx-auto">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center space-x-4">
-                <PfButton
-                  variant="outline"
-                  onClick={handleCancel}
-                  className="flex items-center space-x-2"
+        {/* Formulario */}
+        <div className="space-y-6">
+          {/* Información Básica */}
+          <PfCard>
+            <div className="flex items-center space-x-2 mb-4">
+              <Info className="h-5 w-5 text-blue-600" />
+              <h3 className="text-lg font-semibold text-slate-800">Información Básica</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Nombre del Producto *
+                </label>
+                <PfInput
+                  value={formData.nombre}
+                  onChange={(e) => handleInputChange("nombre", e.target.value)}
+                  placeholder="Ej: Coca Cola 2L"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  SKU *
+                </label>
+                <PfInput
+                  value={formData.sku}
+                  onChange={(e) => handleInputChange("sku", e.target.value)}
+                  placeholder="Ej: CC-2L-001"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Categoría *
+                </label>
+                <select
+                  value={formData.categoria}
+                  onChange={(e) => handleInputChange("categoria", e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <ArrowLeft className="h-4 w-4" />
-                  <span>Volver</span>
-                </PfButton>
-                <div>
-                  <h1 className="text-3xl font-bold text-slate-800">Crear Nuevo Producto</h1>
-                  <p className="text-slate-600 mt-2">Agrega un nuevo producto a tu catálogo</p>
-                </div>
+                  <option value="">Selecciona una categoría</option>
+                  {categorias.map(categoria => (
+                    <option key={categoria} value={categoria}>{categoria}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Marca *
+                </label>
+                <select
+                  value={formData.marca}
+                  onChange={(e) => handleInputChange("marca", e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Selecciona una marca</option>
+                  {marcas.map(marca => (
+                    <option key={marca} value={marca}>{marca}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Proveedor
+                </label>
+                <select
+                  value={formData.proveedor}
+                  onChange={(e) => handleInputChange("proveedor", e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Selecciona un proveedor</option>
+                  {proveedores.map(proveedor => (
+                    <option key={proveedor} value={proveedor}>{proveedor}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Unidad de Venta
+                </label>
+                <select
+                  value={formData.unidad}
+                  onChange={(e) => handleInputChange("unidad", e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Selecciona una unidad</option>
+                  {unidades.map(unidad => (
+                    <option key={unidad} value={unidad}>{unidad}</option>
+                  ))}
+                </select>
               </div>
             </div>
 
-            {/* Formulario */}
-            <form onSubmit={handleSubmit} className="space-y-8">
-              {/* Información Básica */}
-              <PfCard>
-                <div className="flex items-center space-x-2 mb-6">
-                  <Package className="h-5 w-5 text-blue-600" />
-                  <h2 className="text-xl font-semibold text-slate-800">Información Básica</h2>
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Descripción
+              </label>
+              <textarea
+                value={formData.descripcion}
+                onChange={(e) => handleInputChange("descripcion", e.target.value)}
+                placeholder="Describe el producto, características, etc."
+                rows={3}
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </PfCard>
+
+          {/* Información Comercial */}
+          <PfCard>
+            <div className="flex items-center space-x-2 mb-4">
+              <DollarSign className="h-5 w-5 text-green-600" />
+              <h3 className="text-lg font-semibold text-slate-800">Información Comercial</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Precio de Venta *
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500">$</span>
+                  <PfInput
+                    value={formData.precio}
+                    onChange={(e) => handleInputChange("precio", e.target.value)}
+                    placeholder="0.00"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="pl-8"
+                  />
                 </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Nombre del Producto *
-                    </label>
-                    <PfInput
-                      value={formData.nombre}
-                      onChange={(e) => handleInputChange("nombre", e.target.value)}
-                      placeholder="Ej: Coca Cola 2L"
-                      error={errors.nombre}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      SKU (Código Único) *
-                    </label>
-                    <PfInput
-                      value={formData.sku}
-                      onChange={(e) => handleInputChange("sku", e.target.value.toUpperCase())}
-                      placeholder="Ej: CC-2L-001"
-                      error={errors.sku}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Categoría *
-                    </label>
-                    <select
-                      value={formData.categoria}
-                      onChange={(e) => handleInputChange("categoria", e.target.value)}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        errors.categoria ? "border-red-500" : "border-slate-200"
-                      }`}
-                    >
-                      <option value="">Selecciona una categoría</option>
-                      {categorias.map(categoria => (
-                        <option key={categoria} value={categoria}>{categoria}</option>
-                      ))}
-                    </select>
-                    {errors.categoria && (
-                      <p className="text-red-500 text-sm mt-1">{errors.categoria}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Marca *
-                    </label>
-                    <select
-                      value={formData.marca}
-                      onChange={(e) => handleInputChange("marca", e.target.value)}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        errors.marca ? "border-red-500" : "border-slate-200"
-                      }`}
-                    >
-                      <option value="">Selecciona una marca</option>
-                      {marcas.map(marca => (
-                        <option key={marca} value={marca}>{marca}</option>
-                      ))}
-                    </select>
-                    {errors.marca && (
-                      <p className="text-red-500 text-sm mt-1">{errors.marca}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Proveedor *
-                    </label>
-                    <select
-                      value={formData.proveedor}
-                      onChange={(e) => handleInputChange("proveedor", e.target.value)}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        errors.proveedor ? "border-red-500" : "border-slate-200"
-                      }`}
-                    >
-                      <option value="">Selecciona un proveedor</option>
-                      {proveedores.map(proveedor => (
-                        <option key={proveedor} value={proveedor}>{proveedor}</option>
-                      ))}
-                    </select>
-                    {errors.proveedor && (
-                      <p className="text-red-500 text-sm mt-1">{errors.proveedor}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Unidad de Medida *
-                    </label>
-                    <select
-                      value={formData.unidad}
-                      onChange={(e) => handleInputChange("unidad", e.target.value)}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        errors.unidad ? "border-red-500" : "border-slate-200"
-                      }`}
-                    >
-                      <option value="">Selecciona una unidad</option>
-                      {unidades.map(unidad => (
-                        <option key={unidad} value={unidad}>{unidad}</option>
-                      ))}
-                    </select>
-                    {errors.unidad && (
-                      <p className="text-red-500 text-sm mt-1">{errors.unidad}</p>
-                    )}
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Descripción
-                    </label>
-                    <textarea
-                      value={formData.descripcion}
-                      onChange={(e) => handleInputChange("descripcion", e.target.value)}
-                      placeholder="Describe el producto, características especiales, etc."
-                      rows={3}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-              </PfCard>
-
-              {/* Información Comercial */}
-              <PfCard>
-                <div className="flex items-center space-x-2 mb-6">
-                  <DollarSign className="h-5 w-5 text-green-600" />
-                  <h2 className="text-xl font-semibold text-slate-800">Información Comercial</h2>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Precio de Venta *
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500">$</span>
-                      <PfInput
-                        value={formData.precio}
-                        onChange={(e) => handleInputChange("precio", e.target.value)}
-                        placeholder="0.00"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        className="pl-8"
-                        error={errors.precio}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Precio de Costo *
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500">$</span>
-                      <PfInput
-                        value={formData.precioCosto}
-                        onChange={(e) => handleInputChange("precioCosto", e.target.value)}
-                        placeholder="0.00"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        className="pl-8"
-                        error={errors.precioCosto}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Margen de Ganancia
-                    </label>
-                    <div className="relative">
-                      <PfInput
-                        value={formData.margen}
-                        onChange={(e) => handleInputChange("margen", e.target.value)}
-                        placeholder="0.00"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        max="100"
-                        className="pr-8"
-                        disabled
-                      />
-                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500">%</span>
-                    </div>
-                    <p className="text-xs text-slate-500 mt-1">Calculado automáticamente</p>
-                  </div>
-                </div>
-              </PfCard>
-
-              {/* Información de Stock */}
-              <PfCard>
-                <div className="flex items-center space-x-2 mb-6">
-                  <TrendingUp className="h-5 w-5 text-orange-600" />
-                  <h2 className="text-xl font-semibold text-slate-800">Gestión de Stock</h2>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Stock Inicial *
-                    </label>
-                    <PfInput
-                      value={formData.stock}
-                      onChange={(e) => handleInputChange("stock", e.target.value)}
-                      placeholder="0"
-                      type="number"
-                      min="0"
-                      error={errors.stock}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Stock Mínimo *
-                    </label>
-                    <PfInput
-                      value={formData.stockMinimo}
-                      onChange={(e) => handleInputChange("stockMinimo", e.target.value)}
-                      placeholder="0"
-                      type="number"
-                      min="0"
-                      error={errors.stockMinimo}
-                    />
-                  </div>
-
-                  <div className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      id="activo"
-                      checked={formData.activo}
-                      onChange={(e) => handleInputChange("activo", e.target.checked)}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded"
-                    />
-                    <label htmlFor="activo" className="text-sm font-medium text-slate-700">
-                      Producto Activo
-                    </label>
-                  </div>
-                </div>
-              </PfCard>
-
-              {/* Información Adicional */}
-              <PfCard>
-                <div className="flex items-center space-x-2 mb-6">
-                  <Info className="h-5 w-5 text-purple-600" />
-                  <h2 className="text-xl font-semibold text-slate-800">Información Adicional</h2>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Código de Barras
-                    </label>
-                    <PfInput
-                      value={formData.codigoBarras}
-                      onChange={(e) => handleInputChange("codigoBarras", e.target.value)}
-                      placeholder="7891234567890"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Peso (gramos)
-                    </label>
-                    <PfInput
-                      value={formData.peso}
-                      onChange={(e) => handleInputChange("peso", e.target.value)}
-                      placeholder="0"
-                      type="number"
-                      min="0"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Dimensiones (Largo x Ancho x Alto en cm)
-                    </label>
-                    <PfInput
-                      value={formData.dimensiones}
-                      onChange={(e) => handleInputChange("dimensiones", e.target.value)}
-                      placeholder="Ej: 10 x 5 x 20"
-                    />
-                  </div>
-                </div>
-              </PfCard>
-
-              {/* Botones de Acción */}
-              <div className="flex justify-end space-x-4">
-                <PfButton
-                  type="button"
-                  variant="outline"
-                  onClick={handleCancel}
-                  disabled={isSubmitting}
-                >
-                  Cancelar
-                </PfButton>
-                <PfButton
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex items-center space-x-2"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span>Guardando...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4" />
-                      <span>Crear Producto</span>
-                    </>
-                  )}
-                </PfButton>
               </div>
-            </form>
-          </div>
-        </main>
 
-        {/* Toast Container */}
-        <ToastViewport />
-        {toasts.map((toastData) => (
-          <Toast key={toastData.id} variant={toastData.variant}>
-            <div className="flex items-start space-x-3">
-              {toastData.icon}
-              <div className="flex-1">
-                {toastData.title && <ToastTitle>{toastData.title}</ToastTitle>}
-                {toastData.description && <ToastDescription>{toastData.description}</ToastDescription>}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Precio de Costo *
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500">$</span>
+                  <PfInput
+                    value={formData.precioCosto}
+                    onChange={(e) => handleInputChange("precioCosto", e.target.value)}
+                    placeholder="0.00"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="pl-8"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Margen de Ganancia
+                </label>
+                <div className="relative">
+                  <PfInput
+                    value={formData.margen}
+                    onChange={(e) => handleInputChange("margen", e.target.value)}
+                    placeholder="0.0"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    readOnly
+                    className="pr-8"
+                  />
+                  <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500">%</span>
+                </div>
               </div>
             </div>
-            <ToastClose onClick={() => dismiss(toastData.id!)} />
-          </Toast>
-        ))}
+          </PfCard>
+
+          {/* Gestión de Stock */}
+          <PfCard>
+            <div className="flex items-center space-x-2 mb-4">
+              <TrendingUp className="h-5 w-5 text-orange-600" />
+              <h3 className="text-lg font-semibold text-slate-800">Gestión de Stock</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Stock Inicial *
+                </label>
+                <PfInput
+                  value={formData.stock}
+                  onChange={(e) => handleInputChange("stock", e.target.value)}
+                  placeholder="0"
+                  type="number"
+                  min="0"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Stock Mínimo *
+                </label>
+                <PfInput
+                  value={formData.stockMinimo}
+                  onChange={(e) => handleInputChange("stockMinimo", e.target.value)}
+                  placeholder="0"
+                  type="number"
+                  min="0"
+                />
+              </div>
+            </div>
+          </PfCard>
+
+          {/* Información Adicional */}
+          <PfCard>
+            <div className="flex items-center space-x-2 mb-4">
+              <Tag className="h-5 w-5 text-purple-600" />
+              <h3 className="text-lg font-semibold text-slate-800">Información Adicional</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Código de Barras
+                </label>
+                <PfInput
+                  value={formData.codigoBarras}
+                  onChange={(e) => handleInputChange("codigoBarras", e.target.value)}
+                  placeholder="7891234567890"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Peso (gramos)
+                </label>
+                <PfInput
+                  value={formData.peso}
+                  onChange={(e) => handleInputChange("peso", e.target.value)}
+                  placeholder="1000"
+                  type="number"
+                  min="0"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Dimensiones (cm)
+                </label>
+                <PfInput
+                  value={formData.dimensiones}
+                  onChange={(e) => handleInputChange("dimensiones", e.target.value)}
+                  placeholder="12 x 8 x 25"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={formData.activo}
+                  onChange={(e) => handleInputChange("activo", e.target.checked)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded"
+                />
+                <span className="text-sm font-medium text-slate-700">Producto activo</span>
+              </label>
+            </div>
+          </PfCard>
+        </div>
+
+        {/* Acciones */}
+        <div className="flex justify-end space-x-3 mt-8">
+          <PfButton
+            variant="outline"
+            onClick={handleCancel}
+          >
+            Cancelar
+          </PfButton>
+          
+          <PfButton
+            onClick={handleSubmit}
+            className="flex items-center space-x-2"
+          >
+            <Save className="h-4 w-4" />
+            <span>Crear Producto</span>
+          </PfButton>
+        </div>
       </div>
-    </ToastProvider>
+    </AppLayout>
   )
 } 

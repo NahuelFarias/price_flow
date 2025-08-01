@@ -13,7 +13,8 @@ import {
   DollarSign
 } from "lucide-react"
 
-import { Navbar } from "@/components/layout/navbar"
+import { AppLayout } from "@/components/layout/app-layout"
+import { PageHeader } from "@/components/ui/page-header"
 import { PfButton } from "@/components/ui/pf-button"
 import { PfInput } from "@/components/ui/pf-input"
 import {
@@ -39,26 +40,7 @@ export default function CrearPromocionPage() {
     descripcion: "",
     condiciones: ""
   })
-  const [activeSection, setActiveSection] = React.useState("promociones")
   const { toast, toasts, dismiss } = useToast()
-
-  const mockUser = {
-    name: "María González",
-    email: "maria@distribuidora.com",
-    avatar: undefined,
-  }
-
-  const handleLogout = () => {
-    toast({
-      variant: "info",
-      title: "Cerrando sesión",
-      description: "Hasta pronto, María!",
-    })
-  }
-
-  const handleAccountClick = () => {
-    window.location.href = "/account"
-  }
 
   const steps = [
     { id: 1, title: "Información Básica", icon: Target },
@@ -107,10 +89,23 @@ export default function CrearPromocionPage() {
   const handleCrearPromocion = () => {
     toast({
       variant: "success",
-      title: "Promoción creada",
-      description: "La promoción se ha creado exitosamente",
+      title: "Promoción creada exitosamente",
+      description: `"${formData.nombre}" ha sido creada y está activa`,
     })
-    // Aquí iría la lógica para guardar en la API
+    
+    setTimeout(() => {
+      window.location.href = "/promociones"
+    }, 1500)
+  }
+
+  const handleCancel = () => {
+    if (Object.values(formData).some(value => value !== "" && value !== "Todos")) {
+      if (confirm("¿Estás seguro de que quieres cancelar? Se perderán los datos ingresados.")) {
+        window.location.href = "/promociones"
+      }
+    } else {
+      window.location.href = "/promociones"
+    }
   }
 
   const renderStepContent = () => {
@@ -120,7 +115,7 @@ export default function CrearPromocionPage() {
           <div className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Nombre de la promoción
+                Nombre de la Promoción *
               </label>
               <PfInput
                 value={formData.nombre}
@@ -131,18 +126,16 @@ export default function CrearPromocionPage() {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Tipo de promoción
+                Tipo de Promoción *
               </label>
               <select
                 value={formData.tipo}
                 onChange={(e) => handleInputChange("tipo", e.target.value)}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Seleccionar tipo</option>
+                <option value="">Selecciona un tipo</option>
                 {tiposPromocion.map(tipo => (
-                  <option key={tipo.value} value={tipo.value}>
-                    {tipo.label}
-                  </option>
+                  <option key={tipo.value} value={tipo.value}>{tipo.label}</option>
                 ))}
               </select>
             </div>
@@ -154,9 +147,9 @@ export default function CrearPromocionPage() {
               <textarea
                 value={formData.descripcion}
                 onChange={(e) => handleInputChange("descripcion", e.target.value)}
-                placeholder="Describe los detalles de la promoción..."
+                placeholder="Describe la promoción, condiciones especiales, etc."
+                rows={3}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                rows={4}
               />
             </div>
           </div>
@@ -167,9 +160,9 @@ export default function CrearPromocionPage() {
           <div className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Productos incluidos
+                Productos Incluidos *
               </label>
-              <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto border border-slate-200 rounded-lg p-3">
+              <div className="space-y-2 max-h-40 overflow-y-auto border border-slate-200 rounded-lg p-3">
                 {productosDisponibles.map(producto => (
                   <label key={producto} className="flex items-center space-x-2">
                     <input
@@ -182,9 +175,9 @@ export default function CrearPromocionPage() {
                           handleInputChange("productos", formData.productos.filter(p => p !== producto))
                         }
                       }}
-                      className="rounded border-slate-300"
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded"
                     />
-                    <span className="text-sm">{producto}</span>
+                    <span className="text-sm text-slate-700">{producto}</span>
                   </label>
                 ))}
               </div>
@@ -192,17 +185,19 @@ export default function CrearPromocionPage() {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Porcentaje de descuento
+                Descuento *
               </label>
-              <div className="relative">
-                <Percent className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <input
-                  type="number"
+              <div className="flex items-center space-x-2">
+                <PfInput
                   value={formData.descuento}
                   onChange={(e) => handleInputChange("descuento", e.target.value)}
                   placeholder="15"
-                  className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  type="number"
+                  min="0"
+                  max="100"
+                  className="w-32"
                 />
+                <span className="text-slate-600">%</span>
               </div>
             </div>
           </div>
@@ -213,7 +208,7 @@ export default function CrearPromocionPage() {
           <div className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Clientes objetivo
+                Clientes Objetivo *
               </label>
               <select
                 value={formData.clientes}
@@ -227,10 +222,10 @@ export default function CrearPromocionPage() {
               </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Fecha de inicio
+                  Fecha de Inicio *
                 </label>
                 <input
                   type="date"
@@ -242,7 +237,7 @@ export default function CrearPromocionPage() {
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Fecha de fin
+                  Fecha de Fin *
                 </label>
                 <input
                   type="date"
@@ -255,14 +250,14 @@ export default function CrearPromocionPage() {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Condiciones especiales
+                Condiciones Especiales
               </label>
               <textarea
                 value={formData.condiciones}
                 onChange={(e) => handleInputChange("condiciones", e.target.value)}
-                placeholder="Condiciones adicionales de la promoción..."
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Condiciones especiales, restricciones, etc."
                 rows={3}
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -272,36 +267,47 @@ export default function CrearPromocionPage() {
         return (
           <div className="space-y-6">
             <div className="bg-slate-50 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-slate-800 mb-4">Resumen de la promoción</h3>
-              
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="font-medium text-slate-600">Nombre:</span>
-                  <p className="text-slate-800">{formData.nombre}</p>
+              <h3 className="text-lg font-semibold text-slate-800 mb-4">Resumen de la Promoción</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Nombre:</span>
+                  <span className="font-medium">{formData.nombre}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Tipo:</span>
+                  <span className="font-medium">{formData.tipo}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Descuento:</span>
+                  <span className="font-medium">{formData.descuento}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Productos:</span>
+                  <span className="font-medium">{formData.productos.length} seleccionados</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Clientes:</span>
+                  <span className="font-medium">{formData.clientes}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Período:</span>
+                  <span className="font-medium">{formData.fechaInicio} - {formData.fechaFin}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 rounded-lg p-4">
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0">
+                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                  </div>
                 </div>
                 <div>
-                  <span className="font-medium text-slate-600">Tipo:</span>
-                  <p className="text-slate-800">{formData.tipo}</p>
-                </div>
-                <div>
-                  <span className="font-medium text-slate-600">Descuento:</span>
-                  <p className="text-slate-800">{formData.descuento}%</p>
-                </div>
-                <div>
-                  <span className="font-medium text-slate-600">Clientes:</span>
-                  <p className="text-slate-800">{formData.clientes}</p>
-                </div>
-                <div className="col-span-2">
-                  <span className="font-medium text-slate-600">Productos:</span>
-                  <p className="text-slate-800">{formData.productos.join(", ")}</p>
-                </div>
-                <div>
-                  <span className="font-medium text-slate-600">Inicio:</span>
-                  <p className="text-slate-800">{formData.fechaInicio}</p>
-                </div>
-                <div>
-                  <span className="font-medium text-slate-600">Fin:</span>
-                  <p className="text-slate-800">{formData.fechaFin}</p>
+                  <h4 className="text-sm font-medium text-blue-800">¿Todo listo?</h4>
+                  <p className="text-sm text-blue-700 mt-1">
+                    Revisa que toda la información sea correcta antes de crear la promoción.
+                  </p>
                 </div>
               </div>
             </div>
@@ -313,124 +319,104 @@ export default function CrearPromocionPage() {
     }
   }
 
+  const headerActions = (
+    <PfButton
+      variant="outline"
+      onClick={handleCancel}
+      className="flex items-center space-x-2"
+    >
+      <ArrowLeft className="h-4 w-4" />
+      <span>Volver</span>
+    </PfButton>
+  )
+
   return (
-    <ToastProvider>
-      <div className="min-h-screen bg-slate-50 flex flex-col">
-        {/* Navbar */}
-        <Navbar
-          user={mockUser}
-          activeSection={activeSection}
-          onLogout={handleLogout}
-          onAccountClick={handleAccountClick}
+    <AppLayout activeSection="promociones" showSidebar={false}>
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <PageHeader
+          title="Crear Nueva Promoción"
+          description="Crea una promoción paso a paso"
+          actions={headerActions}
         />
 
-        {/* Main Content */}
-        <main className="flex-1 p-6">
-          <div className="max-w-4xl mx-auto">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center space-x-4">
-                <PfButton variant="ghost" size="icon" onClick={() => window.history.back()}>
-                  <ArrowLeft className="h-4 w-4" />
-                </PfButton>
-                <div>
-                  <h1 className="text-3xl font-bold text-slate-800">Crear Promoción</h1>
-                  <p className="text-slate-600 mt-1">Configura una nueva promoción para impulsar tus ventas</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Steps */}
-            <div className="bg-white rounded-lg border border-slate-200 p-6 mb-8">
-              <div className="flex items-center justify-between">
-                {steps.map((step, index) => {
-                  const Icon = step.icon
-                  const isActive = currentStep === step.id
-                  const isCompleted = currentStep > step.id
-                  
-                  return (
-                    <div key={step.id} className="flex items-center">
-                      <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
-                        isActive 
-                          ? "border-blue-500 bg-blue-500 text-white" 
-                          : isCompleted 
-                          ? "border-green-500 bg-green-500 text-white"
-                          : "border-slate-300 bg-white text-slate-400"
-                      }`}>
-                        {isCompleted ? (
-                          <span className="text-sm font-bold">✓</span>
-                        ) : (
-                          <Icon className="h-5 w-5" />
-                        )}
-                      </div>
-                      <span className={`ml-2 text-sm font-medium ${
-                        isActive ? "text-blue-600" : "text-slate-500"
-                      }`}>
-                        {step.title}
-                      </span>
-                      {index < steps.length - 1 && (
-                        <div className={`w-16 h-0.5 mx-4 ${
-                          isCompleted ? "bg-green-500" : "bg-slate-200"
-                        }`} />
+        {/* Steps Indicator */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            {steps.map((step, index) => {
+              const Icon = step.icon
+              const isActive = currentStep === step.id
+              const isCompleted = currentStep > step.id
+              
+              return (
+                <div key={step.id} className="flex items-center">
+                  <div className={`flex items-center space-x-2 ${
+                    isActive ? 'text-blue-600' : isCompleted ? 'text-green-600' : 'text-slate-400'
+                  }`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      isActive ? 'bg-blue-100' : isCompleted ? 'bg-green-100' : 'bg-slate-100'
+                    }`}>
+                      {isCompleted ? (
+                        <div className="w-4 h-4 bg-green-600 rounded-full"></div>
+                      ) : (
+                        <Icon className="w-4 h-4" />
                       )}
                     </div>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="bg-white rounded-lg border border-slate-200 p-6">
-              {renderStepContent()}
-            </div>
-
-            {/* Actions */}
-            <div className="flex justify-between mt-8">
-              <PfButton
-                variant="outline"
-                onClick={handlePrevious}
-                disabled={currentStep === 1}
-              >
-                Anterior
-              </PfButton>
-
-              <div className="flex space-x-4">
-                <PfButton
-                  variant="outline"
-                  onClick={() => window.history.back()}
-                >
-                  Cancelar
-                </PfButton>
-
-                {currentStep === 4 ? (
-                  <PfButton onClick={handleCrearPromocion}>
-                    Crear Promoción
-                  </PfButton>
-                ) : (
-                  <PfButton onClick={handleNext}>
-                    Siguiente
-                  </PfButton>
-                )}
-              </div>
-            </div>
+                    <span className="text-sm font-medium">{step.title}</span>
+                  </div>
+                  {index < steps.length - 1 && (
+                    <div className={`w-16 h-0.5 mx-4 ${
+                      isCompleted ? 'bg-green-200' : 'bg-slate-200'
+                    }`}></div>
+                  )}
+                </div>
+              )
+            })}
           </div>
-        </main>
+        </div>
 
-        {/* Toast Container */}
-        <ToastViewport />
-        {toasts.map((toastData) => (
-          <Toast key={toastData.id} variant={toastData.variant}>
-            <div className="flex items-start space-x-3">
-              {toastData.icon}
-              <div className="flex-1">
-                {toastData.title && <ToastTitle>{toastData.title}</ToastTitle>}
-                {toastData.description && <ToastDescription>{toastData.description}</ToastDescription>}
-              </div>
-            </div>
-            <ToastClose onClick={() => dismiss(toastData.id!)} />
-          </Toast>
-        ))}
+        {/* Step Content */}
+        <div className="bg-white rounded-lg border border-slate-200 p-6">
+          {renderStepContent()}
+        </div>
+
+        {/* Navigation */}
+        <div className="flex justify-between mt-8">
+          <PfButton
+            variant="outline"
+            onClick={handlePrevious}
+            disabled={currentStep === 1}
+          >
+            Anterior
+          </PfButton>
+
+          <div className="flex space-x-3">
+            <PfButton
+              variant="outline"
+              onClick={handleCancel}
+            >
+              Cancelar
+            </PfButton>
+            
+            {currentStep === 4 ? (
+              <PfButton
+                onClick={handleCrearPromocion}
+                className="flex items-center space-x-2"
+              >
+                <Save className="h-4 w-4" />
+                <span>Crear Promoción</span>
+              </PfButton>
+            ) : (
+              <PfButton
+                onClick={handleNext}
+                className="flex items-center space-x-2"
+              >
+                <span>Siguiente</span>
+              </PfButton>
+            )}
+          </div>
+        </div>
       </div>
-    </ToastProvider>
+    </AppLayout>
   )
 } 
