@@ -1,74 +1,172 @@
 "use client"
 
 import * as React from "react"
-import { Target, DollarSign, TrendingUp, Users } from "lucide-react"
+import { 
+  Plus, 
+  TrendingUp, 
+  DollarSign, 
+  Package, 
+  Users, 
+  Target,
+  AlertTriangle,
+  BarChart3
+} from "lucide-react"
 
-import { Navbar } from "@/components/layout/navbar"
-import { Sidebar } from "@/components/layout/sidebar"
-import { PfCard } from "@/components/ui/pf-card"
+import { AppLayout } from "@/components/layout/app-layout"
+import { PageHeader } from "@/components/ui/page-header"
+import { MetricsGrid } from "@/components/ui/metrics-grid"
 import { PfButton } from "@/components/ui/pf-button"
 import { PfTable } from "@/components/ui/pf-table"
+import { PfCard } from "@/components/ui/pf-card"
 import { SalesChart, MarginsChart, PromotionsChart, CategoryDistributionChart } from "@/components/ui/pf-chart"
-import {
-  ToastProvider,
-  ToastViewport,
-  Toast,
-  ToastTitle,
-  ToastDescription,
-  ToastClose,
-  useToast,
-} from "@/components/ui/pf-toast"
 
 // Datos de ejemplo para la tabla
 const sampleData = [
-  { id: 1, producto: "Coca Cola 2L", precio: "$450", margen: "23%", stock: 150, categoria: "Bebidas", estado: "activo" },
-  { id: 2, producto: "Pan Lactal", precio: "$280", margen: "18%", stock: 89, categoria: "Alimentos", estado: "activo" },
-  { id: 3, producto: "Detergente Ala", precio: "$320", margen: "25%", stock: 45, categoria: "Limpieza", estado: "activo" },
-  { id: 4, producto: "Aceite Natura", precio: "$890", margen: "15%", stock: 23, categoria: "Alimentos", estado: "bajo_stock" },
-  { id: 5, producto: "Leche La Serenísima", precio: "$180", margen: "12%", stock: 0, categoria: "Lácteos", estado: "sin_stock" },
-  { id: 6, producto: "Yogur Danone", precio: "$220", margen: "20%", stock: 67, categoria: "Lácteos", estado: "activo" },
-  { id: 7, producto: "Arroz Gallo", precio: "$150", margen: "16%", stock: 120, categoria: "Alimentos", estado: "activo" },
-  { id: 8, producto: "Aceite de Oliva", precio: "$1,200", margen: "30%", stock: 15, categoria: "Alimentos", estado: "bajo_stock" },
+  {
+    id: 1,
+    nombre: "Coca Cola 2L",
+    sku: "CC-2L-001",
+    categoria: "Bebidas",
+    precio: 450,
+    stock: 150,
+    estado: "activo"
+  },
+  {
+    id: 2,
+    nombre: "Pan Lactal",
+    sku: "PL-500G-002",
+    categoria: "Alimentos",
+    precio: 280,
+    stock: 89,
+    estado: "activo"
+  },
+  {
+    id: 3,
+    nombre: "Detergente Ala",
+    sku: "DA-1L-003",
+    categoria: "Limpieza",
+    precio: 320,
+    stock: 45,
+    estado: "bajo_stock"
+  },
+  {
+    id: 4,
+    nombre: "Aceite Natura",
+    sku: "AN-1L-004",
+    categoria: "Alimentos",
+    precio: 890,
+    stock: 23,
+    estado: "bajo_stock"
+  },
+  {
+    id: 5,
+    nombre: "Leche La Serenísima",
+    sku: "LS-1L-005",
+    categoria: "Lácteos",
+    precio: 180,
+    stock: 0,
+    estado: "sin_stock"
+  }
 ]
 
 const columns = [
-  { key: "producto" as const, label: "Producto", sortable: true },
-  { key: "precio" as const, label: "Precio", sortable: true },
-  { key: "margen" as const, label: "Margen", sortable: true },
-  { key: "stock" as const, label: "Stock", sortable: true },
+  { key: "nombre" as const, label: "Producto", sortable: true },
+  { key: "sku" as const, label: "SKU", sortable: true },
   { key: "categoria" as const, label: "Categoría", sortable: true },
+  { key: "precio" as const, label: "Precio", sortable: true },
+  { key: "stock" as const, label: "Stock", sortable: true },
+  { key: "estado" as const, label: "Estado", sortable: true },
 ]
 
-// Datos de alertas importantes
+// Datos para métricas del dashboard
+const metricasDashboard = [
+  {
+    titulo: "Ventas del mes",
+    valor: "$2.4M",
+    descripcion: "+12% vs mes anterior",
+    color: "bg-blue-100",
+    icono: TrendingUp,
+    colorIcono: "text-blue-600"
+  },
+  {
+    titulo: "Margen promedio",
+    valor: "23.5%",
+    descripcion: "+2.1% vs mes anterior",
+    color: "bg-green-100",
+    icono: DollarSign,
+    colorIcono: "text-green-600"
+  },
+  {
+    titulo: "Productos activos",
+    valor: "247",
+    descripcion: "+8 este mes",
+    color: "bg-purple-100",
+    icono: Package,
+    colorIcono: "text-purple-600"
+  },
+  {
+    titulo: "Clientes activos",
+    valor: "89",
+    descripcion: "+3 este mes",
+    color: "bg-orange-100",
+    icono: Users,
+    colorIcono: "text-orange-600"
+  },
+  {
+    titulo: "Promociones activas",
+    valor: "12",
+    descripcion: "3 próximas a vencer",
+    color: "bg-pink-100",
+    icono: Target,
+    colorIcono: "text-pink-600"
+  }
+]
+
+// Datos para alertas importantes
 const alertasData = [
-  { id: 1, tipo: "stock", mensaje: "Leche La Serenísima sin stock", prioridad: "alta", accion: "Reposición urgente" },
-  { id: 2, tipo: "margen", mensaje: "Aceite Natura con margen bajo (15%)", prioridad: "media", accion: "Revisar precio" },
-  { id: 3, tipo: "promocion", mensaje: "Promoción Coca Cola expira en 2 días", prioridad: "media", accion: "Renovar o finalizar" },
-  { id: 4, tipo: "cliente", mensaje: "Cliente Premium solicita descuento especial", prioridad: "alta", accion: "Revisar solicitud" },
+  {
+    id: 1,
+    mensaje: "Leche La Serenísima sin stock - Requiere reposición urgente",
+    prioridad: "alta",
+    fecha: "2024-03-23"
+  },
+  {
+    id: 2,
+    mensaje: "Promoción Coca Cola vence en 3 días - Revisar renovación",
+    prioridad: "media",
+    fecha: "2024-03-23"
+  },
+  {
+    id: 3,
+    mensaje: "5 productos con stock bajo - Considerar reabastecimiento",
+    prioridad: "media",
+    fecha: "2024-03-23"
+  }
 ]
 
 // Datos para gráficos
 const salesData = [
-  { name: "Ene", value: 1200000 },
-  { name: "Feb", value: 1350000 },
-  { name: "Mar", value: 1280000 },
-  { name: "Abr", value: 1420000 },
-  { name: "May", value: 1380000 },
-  { name: "Jun", value: 1560000 },
+  { name: "Sem 1", value: 120 },
+  { name: "Sem 2", value: 135 },
+  { name: "Sem 3", value: 142 },
+  { name: "Sem 4", value: 158 },
+  { name: "Sem 5", value: 165 },
+  { name: "Sem 6", value: 172 },
 ]
 
 const marginsData = [
-  { name: "Alimentos", value: 18 },
-  { name: "Bebidas", value: 25 },
-  { name: "Limpieza", value: 22 },
-  { name: "Lácteos", value: 16 },
-  { name: "Otros", value: 20 },
+  { name: "Sem 1", value: 18 },
+  { name: "Sem 2", value: 19 },
+  { name: "Sem 3", value: 21 },
+  { name: "Sem 4", value: 22 },
+  { name: "Sem 5", value: 23 },
+  { name: "Sem 6", value: 24 },
 ]
 
 const promotionsData = [
   { name: "Sem 1", value: 85 },
-  { name: "Sem 2", value: 92 },
-  { name: "Sem 3", value: 78 },
+  { name: "Sem 2", value: 88 },
+  { name: "Sem 3", value: 92 },
   { name: "Sem 4", value: 88 },
   { name: "Sem 5", value: 95 },
   { name: "Sem 6", value: 91 },
@@ -82,240 +180,118 @@ const categoryData = [
 ]
 
 export default function PriceflowDemo() {
-  const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false)
-  const [activeSection, setActiveSection] = React.useState("dashboard")
-  const { toast, toasts, dismiss } = useToast()
-
-  const mockUser = {
-    name: "María González",
-    email: "maria@distribuidora.com",
-    avatar: undefined,
+  const handleCrearPromocion = () => {
+    window.location.href = "/promociones/crear"
   }
 
-  const handleLogout = () => {
-    toast({
-      variant: "info",
-      title: "Cerrando sesión",
-      description: "Hasta pronto, María!",
-    })
-  }
-
-  const handleAccountClick = () => {
-    window.location.href = "/account"
-  }
-
-  const showSuccessToast = () => {
-    toast({
-      variant: "success",
-      title: "¡Promoción creada!",
-      description: "La promoción se activó correctamente.",
-    })
-  }
-
-  const showWarningToast = () => {
-    toast({
-      variant: "warning",
-      title: "Stock bajo",
-      description: "Algunos productos requieren reposición.",
-    })
-  }
+  const headerActions = (
+    <>
+      <PfButton variant="outline" onClick={() => window.location.href = "/productos"}>
+        Ver Productos
+      </PfButton>
+      <PfButton onClick={handleCrearPromocion} className="flex items-center space-x-2">
+        <Plus className="h-4 w-4" />
+        <span>Crear Promoción</span>
+      </PfButton>
+    </>
+  )
 
   return (
-    <ToastProvider>
-      <div className="min-h-screen bg-slate-50 flex flex-col">
-        {/* Navbar */}
-        <Navbar
-          user={mockUser}
-          activeSection={activeSection}
-          onLogout={handleLogout}
-          onAccountClick={handleAccountClick}
-          onMenuClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+    <AppLayout activeSection="dashboard">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <PageHeader
+          title="Dashboard"
+          description="Vista general de tu negocio mayorista"
+          actions={headerActions}
         />
 
-        <div className="flex flex-1">
-          {/* Sidebar */}
-          <Sidebar
-            activeSection={activeSection}
-            collapsed={sidebarCollapsed}
-            onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="hidden md:flex"
-          />
+        {/* Métricas */}
+        <MetricsGrid metrics={metricasDashboard} />
 
-          {/* Main Content */}
-          <main className="flex-1 p-6">
-            <div className="max-w-7xl mx-auto space-y-8">
-              {/* Welcome Section */}
-              <div>
-                <h1 className="text-2xl font-bold text-slate-800 mb-2">¡Bienvenida, {mockUser.name.split(" ")[0]}!</h1>
-                <p className="text-slate-600">Aquí tienes un resumen de tu plataforma Priceflow</p>
-              </div>
-
-              {/* KPI Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                <PfCard
-                  icon={<Target className="h-5 w-5 text-blue-600" />}
-                  title="Promociones activas"
-                  value="12"
-                  description="+3 esta semana"
-                  color="bg-blue-100"
-                />
-                <PfCard
-                  icon={<DollarSign className="h-5 w-5 text-emerald-600" />}
-                  title="Margen promedio"
-                  value="23.4%"
-                  description="+2.1% vs mes anterior"
-                  color="bg-emerald-100"
-                />
-                <PfCard
-                  icon={<DollarSign className="h-5 w-5 text-emerald-600" />}
-                  title="Ventas totales"
-                  value="$1,234,567"
-                  description="+5.6% vs mes anterior"
-                  color="bg-emerald-100"
-                />
-                <PfCard
-                  icon={<TrendingUp className="h-5 w-5 text-orange-600" />}
-                  title="Productos con margen bajo"
-                  value="8"
-                  description="Requieren atención"
-                  color="bg-orange-100"
-                />
-                <PfCard
-                  icon={<Users className="h-5 w-5 text-purple-600" />}
-                  title="Clientes activos"
-                  value="247"
-                  description="+12% este mes"
-                  color="bg-purple-100"
-                />
-              </div>
-
-              {/* Segunda fila de métricas específicas */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <PfCard
-                  icon={<Target className="h-5 w-5 text-green-600" />}
-                  title="Promociones próximas"
-                  value="5"
-                  description="Se activan en 7 días"
-                  color="bg-green-100"
-                />
-                <PfCard
-                  icon={<TrendingUp className="h-5 w-5 text-red-600" />}
-                  title="Productos sin stock"
-                  value="3"
-                  description="Reposición urgente"
-                  color="bg-red-100"
-                />
-                <PfCard
-                  icon={<DollarSign className="h-5 w-5 text-yellow-600" />}
-                  title="Margen por categoría"
-                  value="Alimentos: 18%"
-                  description="Bebidas: 25% | Limpieza: 22%"
-                  color="bg-yellow-100"
-                />
-                <PfCard
-                  icon={<Users className="h-5 w-5 text-indigo-600" />}
-                  title="Clientes premium"
-                  value="45"
-                  description="+8% este mes"
-                  color="bg-indigo-100"
-                />
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-4">
-                <PfButton onClick={showSuccessToast}>Crear promoción</PfButton>
-                <PfButton variant="outline" onClick={showWarningToast}>
-                  Ver alertas
-                </PfButton>
-                <PfButton variant="success">Generar reporte</PfButton>
-              </div>
-
-              {/* Data Table */}
-              <div>
-                <h2 className="text-xl font-semibold text-slate-800 mb-4">Productos Recientes</h2>
-                <PfTable
-                  data={sampleData}
-                  columns={columns}
-                  searchable
-                  pagination
-                  pageSize={5}
-                  onRowClick={(row) => {
-                    toast({
-                      variant: "info",
-                      title: "Producto seleccionado",
-                      description: `Has seleccionado: ${row.producto}`,
-                    })
-                  }}
-                />
-              </div>
-
-              {/* Alertas Importantes */}
-              <div>
-                <h2 className="text-xl font-semibold text-slate-800 mb-4">Alertas Importantes</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {alertasData.map((alerta) => (
-                    <div
-                      key={alerta.id}
-                      className={`p-4 rounded-lg border-l-4 ${
-                        alerta.prioridad === "alta"
-                          ? "border-red-500 bg-red-50"
-                          : "border-yellow-500 bg-yellow-50"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-slate-800">{alerta.mensaje}</p>
-                          <p className="text-xs text-slate-600 mt-1">{alerta.accion}</p>
-                        </div>
-                        <PfButton
-                          variant="outline"
-                          size="sm"
-                          className="ml-2"
-                          onClick={() => {
-                            toast({
-                              variant: "info",
-                              title: "Acción tomada",
-                              description: `Procesando: ${alerta.accion}`,
-                            })
-                          }}
-                        >
-                          Ver
-                        </PfButton>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Gráficos de Análisis */}
-              <div>
-                <h2 className="text-xl font-semibold text-slate-800 mb-4">Análisis de Datos</h2>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <SalesChart data={salesData} />
-                  <MarginsChart data={marginsData} />
-                  <PromotionsChart data={promotionsData} />
-                  <CategoryDistributionChart data={categoryData} />
-                </div>
-              </div>
-            </div>
-          </main>
+        {/* Gráficos de Análisis */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white rounded-lg border border-slate-200 p-6">
+            <SalesChart data={salesData} height={300} />
+          </div>
+          <div className="bg-white rounded-lg border border-slate-200 p-6">
+            <MarginsChart data={marginsData} height={300} />
+          </div>
+          <div className="bg-white rounded-lg border border-slate-200 p-6">
+            <PromotionsChart data={promotionsData} height={300} />
+          </div>
+          <div className="bg-white rounded-lg border border-slate-200 p-6">
+            <CategoryDistributionChart data={categoryData} height={300} />
+          </div>
         </div>
 
-        {/* Toast Container */}
-        <ToastViewport />
-        {toasts.map((toastData) => (
-          <Toast key={toastData.id} variant={toastData.variant}>
-            <div className="flex items-start space-x-3">
-              {toastData.icon}
-              <div className="flex-1">
-                {toastData.title && <ToastTitle>{toastData.title}</ToastTitle>}
-                {toastData.description && <ToastDescription>{toastData.description}</ToastDescription>}
-              </div>
+        {/* Productos Recientes */}
+        <div className="bg-white rounded-lg border border-slate-200">
+          <div className="p-6 border-b border-slate-200">
+            <h2 className="text-xl font-semibold text-slate-800">Productos Recientes</h2>
+            <p className="text-slate-600 mt-1">Últimos productos agregados al catálogo</p>
+          </div>
+          
+          <PfTable
+            data={sampleData}
+            columns={columns}
+            searchable={false}
+            pagination
+            pageSize={5}
+            onRowClick={(row) => {
+              // Aquí iría la lógica para ver detalles del producto
+              console.log("Ver detalles:", row)
+            }}
+          />
+        </div>
+
+        {/* Alertas Importantes */}
+        <div className="bg-white rounded-lg border border-slate-200">
+          <div className="p-6 border-b border-slate-200">
+            <h2 className="text-xl font-semibold text-slate-800 flex items-center space-x-2">
+              <AlertTriangle className="h-5 w-5 text-orange-600" />
+              <span>Alertas Importantes</span>
+            </h2>
+            <p className="text-slate-600 mt-1">Acciones que requieren tu atención</p>
+          </div>
+          
+          <div className="p-6">
+            <div className="space-y-4">
+              {alertasData.map((alerta) => (
+                <div
+                  key={alerta.id}
+                  className={`p-4 rounded-lg border-l-4 ${
+                    alerta.prioridad === "alta"
+                      ? "bg-red-50 border-red-400"
+                      : "bg-yellow-50 border-yellow-400"
+                  }`}
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <p className={`font-medium ${
+                        alerta.prioridad === "alta" ? "text-red-800" : "text-yellow-800"
+                      }`}>
+                        {alerta.mensaje}
+                      </p>
+                      <p className="text-sm text-slate-600 mt-1">{alerta.fecha}</p>
+                    </div>
+                    <PfButton
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        // Aquí iría la lógica para manejar la alerta
+                        console.log("Manejar alerta:", alerta.id)
+                      }}
+                    >
+                      Ver
+                    </PfButton>
+                  </div>
+                </div>
+              ))}
             </div>
-            <ToastClose onClick={() => dismiss(toastData.id!)} />
-          </Toast>
-        ))}
+          </div>
+        </div>
       </div>
-    </ToastProvider>
+    </AppLayout>
   )
 }
