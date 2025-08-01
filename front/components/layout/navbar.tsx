@@ -22,9 +22,10 @@ interface NavbarProps {
   onMenuClick?: () => void
   onLogout?: () => void
   onAccountClick?: () => void
+  isSimple?: boolean // Modo simplificado para login/páginas públicas
 }
 
-export function Navbar({ user, activeSection, onMenuClick, onLogout, onAccountClick }: NavbarProps) {
+export function Navbar({ user, activeSection, onMenuClick, onLogout, onAccountClick, isSimple = false }: NavbarProps) {
   const handleCrearPromocion = () => {
     window.location.href = "/promociones/crear"
   }
@@ -35,49 +36,60 @@ export function Navbar({ user, activeSection, onMenuClick, onLogout, onAccountCl
         <div className="flex justify-between items-center h-16">
           {/* Logo y Menú Móvil */}
           <div className="flex items-center space-x-4">
-            <PfButton variant="ghost" size="icon" className="md:hidden" onClick={onMenuClick}>
-              <Menu className="h-5 w-5" />
-            </PfButton>
+            {!isSimple && (
+              <PfButton variant="ghost" size="icon" className="md:hidden" onClick={onMenuClick}>
+                <Menu className="h-5 w-5" />
+              </PfButton>
+            )}
 
-            <div className="flex items-center space-x-2">
+            <button 
+              onClick={() => window.location.href = isSimple ? "/" : "/dashboard"} 
+              className="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer"
+            >
               <div className="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-slate-800">Priceflow</span>
-            </div>
+            </button>
           </div>
 
-          {/* Búsqueda Global (solo en desktop) */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Buscar productos, promociones..."
-                className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+          {/* Búsqueda Global (solo en desktop y cuando no es simple) */}
+          {!isSimple && (
+            <div className="hidden md:flex flex-1 max-w-md mx-8">
+              <div className="relative w-full">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Buscar productos, promociones..."
+                  className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Acciones Rápidas y Usuario */}
           <div className="flex items-center space-x-4">
-            {/* Botón de Acción Rápida */}
-            <PfButton 
-              onClick={handleCrearPromocion}
-              className="hidden sm:flex items-center space-x-2"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Crear Promoción</span>
-            </PfButton>
+            {!isSimple && (
+              <>
+                {/* Botón de Acción Rápida */}
+                <PfButton 
+                  onClick={handleCrearPromocion}
+                  className="hidden sm:flex items-center space-x-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Crear Promoción</span>
+                </PfButton>
 
-            {/* Notificaciones */}
-            <PfButton variant="ghost" size="icon" className="relative">
-              <Bell className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full"></span>
-            </PfButton>
+                {/* Notificaciones */}
+                <PfButton variant="ghost" size="icon" className="relative">
+                  <Bell className="w-5 h-5" />
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full"></span>
+                </PfButton>
+              </>
+            )}
 
             {/* Menú de Usuario */}
-            {user && (
+            {user && !isSimple && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <PfButton variant="ghost" className="flex items-center space-x-2 px-3">
