@@ -288,3 +288,125 @@ __pycache__/
 
 # Sonarqube
 .sonarqube/
+
+# ===== FRONTEND (Next.js) =====
+
+# Dependencies
+front/node_modules/
+front/.pnp
+front/.pnp.js
+
+# Testing
+front/coverage/
+
+# Next.js
+front/.next/
+front/out/
+
+# Production
+front/build/
+
+# Misc
+front/.DS_Store
+front/*.pem
+
+# Debug
+front/npm-debug.log*
+front/yarn-debug.log*
+front/yarn-error.log*
+front/pnpm-debug.log*
+
+# Local env files
+front/.env*.local
+front/.env
+
+# Vercel
+front/.vercel
+
+# TypeScript
+front/*.tsbuildinfo
+front/next-env.d.ts
+
+# IDE
+front/.vscode/
+front/.idea/
+
+# OS
+front/Thumbs.db
+
+# Logs
+front/logs
+front/*.log
+
+# Runtime data
+front/pids
+front/*.pid
+front/*.seed
+front/*.pid.lock
+
+# Coverage directory used by tools like istanbul
+front/coverage
+front/*.lcov
+
+# nyc test coverage
+front/.nyc_output
+
+# Dependency directories
+front/node_modules/
+front/jspm_packages/
+
+# Optional npm cache directory
+front/.npm
+
+# Optional eslint cache
+front/.eslintcache
+
+# Microbundle cache
+front.rpt2_cache/
+front.rts2_cache_cjs/
+front.rts2_cache_es/
+front.rts2_cache_umd/
+
+# Optional REPL history
+front/.node_repl_history
+
+# Output of 'npm pack'
+front/*.tgz
+
+# Yarn Integrity file
+front/.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+front/.cache
+front.parcel-cache
+
+# Next.js build output
+front/.next
+front/out
+
+# Nuxt.js build / generate output
+front.nuxt
+front/dist
+
+# Gatsby files
+front.cache/
+front/public
+
+# Storybook build outputs
+front.out
+front.storybook-out
+
+# Temporary folders
+front/tmp/
+front/temp/
+
+# Editor directories and files
+front.vscode/*
+front!.vscode/extensions.json
+front.idea
+front.DS_Store
+front*.suo
+front*.ntvs*
+front*.njsproj
+front*.sln
+front*.sw?
