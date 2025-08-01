@@ -413,6 +413,7 @@ front*.sw?
 
 # ===== SHADCN/UI COMPONENTS =====
 # Ignore auto-generated shadcn/ui components (can be regenerated)
+# BUT KEEP manually created components
 front/components/ui/accordion.tsx
 front/components/ui/alert-dialog.tsx
 front/components/ui/alert.tsx
@@ -457,6 +458,13 @@ front/components/ui/toggle.tsx
 front/components/ui/tooltip.tsx
 front/components/ui/use-mobile.tsx
 front/components/ui/use-toast.ts
+
+# EXCEPTIONS: Manually created components (DO NOT IGNORE)
+!front/components/ui/dropdown-menu.tsx
+!front/components/ui/pf-*.tsx
+!front/components/ui/page-header.tsx
+!front/components/ui/metrics-grid.tsx
+!front/components/ui/filters-section.tsx
 
 # Styles directory (if auto-generated)
 front/styles/
