@@ -475,8 +475,9 @@ export default function ProductosPage() {
             onRowClick={(row) => handleVerDetalles(row)}
           />
         </div>
+      </div>
 
-        {/* Modal de Importación */}
+      {/* Modal de Importación */}
         {showImportModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-md">
@@ -533,7 +534,7 @@ export default function ProductosPage() {
 
         {/* Modal de Detalles del Producto */}
         {showDetailsModal && selectedProducto && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
             <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
               {/* Header del Modal */}
               <div className="flex justify-between items-center p-6 border-b border-slate-200">
@@ -764,7 +765,6 @@ export default function ProductosPage() {
             </div>
           </div>
         )}
-      </div>
     </AppLayout>
   )
 } 
