@@ -14,7 +14,7 @@ namespace PriceFlow.Api.Controllers
             _csvImportService = service;
         }
 
-        [HttpPost("importar-csv")]
+        [HttpPost("importarCsv")]
         public async Task<ActionResult> ImportarCsv(IFormFile file)
         {
             if (file == null || file.Length == 0)
