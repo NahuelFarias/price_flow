@@ -9,11 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Application\Data\" />
     <Folder Include="Infraestructure\Database\Repositories\" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="33.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.18" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.18">
       <PrivateAssets>all</PrivateAssets>
