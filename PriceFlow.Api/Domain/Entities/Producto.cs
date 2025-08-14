@@ -16,7 +16,18 @@ namespace PriceFlow.Api.Domain.Entities
         [Required]
         [Column(TypeName = "varchar(255)")]
         public string Marca {  get; set; }
-        
+
+        [Required]
+        [Column(TypeName = "varchar(255)")]
+        public string Nombre { get; set; }
+
+        /// <summary>
+        /// Probablemente un enum. No creo que valga la pena hacer una tabla para esto
+        /// </summary>
+        [Required]
+        [Column(TypeName = "varchar(255)")]
+        public string Categoria { get; set; }
+
         [Required]
         public bool Activo { get; set; }
     }

@@ -15,7 +15,10 @@ namespace PriceFlow.Api.Domain.Entities
         
         [Required]
         [Column(TypeName = "varchar(255)")]
-        public string Condicion { get; set; }
+        public string Descripcion { get; set; }
+
+        [Required]
+        public decimal PorcentajeDescuento { get; set; }
         
         [Required]
         public DateTime FechaInicioVigenciaUTC { get; set; }

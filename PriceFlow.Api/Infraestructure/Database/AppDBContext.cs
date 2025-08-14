@@ -61,7 +61,7 @@ namespace PriceFlow.Api.Infraestructure.Database
             modelBuilder.Entity<Venta>(entity =>
             {
                 entity.HasIndex(i => i.IdentificadorVenta).IsUnique(true);
-                entity.HasOne(e => e.Precio)
+                entity.HasOne(e => e.PrecioDeLista)
                         .WithMany()
                         .HasForeignKey(e => e.PrecioId);
                 entity.HasMany(p => p.Promociones)
